@@ -10,7 +10,7 @@ auth = require '../lib/auth'
 User = mongoose.model 'User'
 router = do require 'koa-router'
 
-# Promiseでラップしてyieldableにする
+# Make yieldable
 bcryptCompare = Q.nbind bcrypt.compare, bcrypt
 jwtVerify = Q.nbind jwt.verify, jwt
 

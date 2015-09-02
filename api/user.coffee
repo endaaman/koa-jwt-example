@@ -10,7 +10,7 @@ auth = require '../lib/auth'
 User = mongoose.model 'User'
 router = do require 'koa-router'
 
-# Make it yieldable
+# Make yieldable
 bcryptGenSalt = Q.nbind bcrypt.genSalt, bcrypt
 bcryptHash = Q.nbind bcrypt.hash, bcrypt
 
@@ -25,7 +25,7 @@ router.post '/', (next)->
 
     # Make salt
     salt = yield bcryptGenSalt 10
-    # Crypt with salt
+    # Crypt password with salt
     hashed_password = yield bcryptHash @request.body.password, salt
 
     # `salt` is not needed because `hashed_password` contains it.
