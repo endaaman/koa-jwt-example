@@ -1,40 +1,49 @@
 # koa-jwt-example
 
+This is a simple JSON Web Token authentication implementation on koa.js.
+
+This example shows you how to
+- Sign up
+- Log in
+- authenticate
+
+
 ## Requirements
 
 * MongoDB
 * node.js >= 0.12
 
-## Notice
+## Settings
 
-This example uses
-* port `3000`
-* `example` DB of MongoDB
+See `./config.coffee`. Default:
 
-Please check if these are free.
+* Server port: `mongodb://localhost:27017/example`
+* DB URI: `example` DB of MongoDB
+
 
 ## Hands-on
 
-Clone this repo and run
-```
-npm i
-npm start
-```
+### Confirm you are not logged in,
 
-or if you are using [PM2](https://github.com/Unitech/pm2)
+Request:
 
 ```
-npm i
-npm run pm2
-pm2 logs example
+$ curl http://localhost:3000
 ```
+
+Reponse:
+
+```json
+You are not logged in
+```
+
 
 ### Sign up
 
-Request
+Create an user whose name is `'hoge'` and password is `'fuga'`
 
 ```
-curl -v \
+$ curl -v \
     -X POST \
     -H 'Content-Type: application/json; charset=UTF-8' \
     -H 'X-Accept: application/json' \
@@ -42,14 +51,14 @@ curl -v \
     http://localhost:3000/users
 ```
 
-Reponse `201`
+If Success, You will get empty response with code `201`
 
 ### Log in
 
-Request
+Obtain the *JSON WEB TOKEN* using username and password.
 
 ```
-curl -v \
+$ curl -v \
     -X POST \
     -H 'Content-Type: application/json; charset=UTF-8' \
     -H 'X-Accept: application/json' \
@@ -57,7 +66,7 @@ curl -v \
     http://localhost:3000/session
 ```
 
-Reponse
+If success, You will get json like
 
 ```json
 {
@@ -69,23 +78,22 @@ Reponse
 }
 ```
 
-### Check if authorized
+with code `201` else 401
+
+
+### Then, you can be authorized
 
 Request
 
 ```
-curl -v \
-    -H 'Content-Type: application/json; charset=UTF-8' \
+$ curl -v \
     -H 'X-Accept: application/json' \
     -H 'Authorization: Bearer <JSON WEB TOKEN>' \
-    http://localhost:3000/session
+    http://localhost:3000
 ```
 
 Reponse
 
 ```json
-{
-  "_id": "<USER ID>",
-  "username": "hoge"
-}
+Konnichiwa, hoge=san.
 ```

@@ -21,22 +21,20 @@ router.post '/', (next)->
     q = User.findOne username: @request.body.username
     doc = yield q.exec()
     if not doc
-        @throw 401
+        @throw 400
         return
 
     # Compare `password` with `hashed_password`
     ok = yield bcryptCompare @request.body.password, doc.hashed_password
     if not ok
-        @throw 401
+        @throw 400
         return
 
-    # Strip `hashed_password`
-    user = _.pick doc, ['_id', 'username']
+    # Sign user id to json web token
+    token = jwt.sign (_id: doc.id), secret
 
-    # Write down user object to token
-    # First param of `jwt.sign` will transform so
-    # Pass cloned object
-    token = jwt.sign _.clone(user), secret
+    # Serialize user object
+    user = _.pick doc, ['_id', 'username']
 
     # Make response
     @body =
@@ -48,7 +46,7 @@ router.post '/', (next)->
 
 # `GET /session` = Check if authorized
 router.get '/', auth, (next)->
-    @body = @user
+    @body = user: _.pick @user, ['_id', 'username']
     yield next
 
 

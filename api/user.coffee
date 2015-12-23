@@ -37,7 +37,7 @@ router.post '/', (next)->
     # So if it is dupricated, `user.save()` will fail
     try
         yield user.save()
-    catch e
+    catch
         @throw 400
         return
 
@@ -46,10 +46,8 @@ router.post '/', (next)->
 
 
 # `GET /users` = List users
-router.get '/', auth, (next)->
-    q = User.find {}
-    docs = yield q.select '_id username'
-    @body = docs
+router.get '/', (next)->
+    @body = yield User.find {}, '_id username'
     yield next
 
 
