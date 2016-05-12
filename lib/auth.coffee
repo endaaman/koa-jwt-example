@@ -1,6 +1,5 @@
 module.exports = (next)->
-    if not @user
+    if (not @user) or (not @user.approved)
         @throw 401
         return
-
     yield next

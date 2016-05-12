@@ -1,29 +1,35 @@
 # koa-jwt-example
-
 This is a simple JSON Web Token authentication implementation on koa.js.
 
 This example shows you how to
 - Sign up
 - Log in
-- authenticate
+- authenticattion
+
+## libraries
+- koa.js(v1.x)
+- koa-router
+- jsonwebtoken
+- bcrypt
+- mongoose
 
 
 ## Requirements
 
 * MongoDB
-* node.js >= 0.12
+* node.js >= 4.x
 
 ## Settings
 
 See `./config.coffee`. Default:
 
-* Server port: `mongodb://localhost:27017/example`
+* Server: `mongodb://localhost:27017/example`
 * DB URI: `example` DB of MongoDB
 
 
 ## Hands-on
 
-### Confirm you are not logged in,
+### Ensure you are not logged in,
 
 Request:
 
@@ -31,42 +37,39 @@ Request:
 $ curl http://localhost:3000
 ```
 
-Reponse:
-
-```json
+then, you will get response
+```
 You are not logged in
 ```
 
 
 ### Sign up
 
-Create an user whose name is `'hoge'` and password is `'fuga'`
+Create user account whose name is `'hoge'` and password is `'fuga'`
 
 ```
 $ curl -v \
-    -X POST \
     -H 'Content-Type: application/json; charset=UTF-8' \
     -H 'X-Accept: application/json' \
     -d '{"username": "hoge", "password": "fuga"}' \
     http://localhost:3000/users
 ```
 
-If Success, You will get empty response with code `201`
+If Success, the user acocunt is created and you will get empty response with code `201`
 
 ### Log in
 
-Obtain the *JSON WEB TOKEN* using username and password.
+Obtain a *JSON WEB TOKEN* using username and password.
 
 ```
 $ curl -v \
-    -X POST \
     -H 'Content-Type: application/json; charset=UTF-8' \
     -H 'X-Accept: application/json' \
     -d '{"username": "hoge", "password": "fuga"}' \
     http://localhost:3000/session
 ```
 
-If success, You will get json like
+If success, You will get a json like
 
 ```json
 {
@@ -78,12 +81,9 @@ If success, You will get json like
 }
 ```
 
-with code `201` else 401
+with code `201` else `401`
 
-
-### Then, you can be authorized
-
-Request
+### Then, you can be authorized!
 
 ```
 $ curl -v \
@@ -92,8 +92,10 @@ $ curl -v \
     http://localhost:3000
 ```
 
-Reponse
+Then you will get
 
 ```json
 Konnichiwa, hoge=san.
 ```
+
+Have fun.

@@ -4,50 +4,49 @@ bcrypt = require 'bcrypt'
 jwt = require 'jsonwebtoken'
 mongoose = require 'mongoose'
 
-secret = require '../secret'
+config = require '../config'
 auth = require '../lib/auth'
 
 User = mongoose.model 'User'
 router = do require 'koa-router'
 
-# Make yieldable
 bcryptGenSalt = Q.nbind bcrypt.genSalt, bcrypt
 bcryptHash = Q.nbind bcrypt.hash, bcrypt
 
 
-# `POST /users` = Sign up
 router.post '/', (next)->
-    # Easy validation
     valid = @request.body.username and @request.body.password
     if not valid
         @throw 400
-        return
 
-    # Make salt
-    salt = yield bcryptGenSalt 10
-    # Crypt password with salt
-    hashed_password = yield bcryptHash @request.body.password, salt
+    doc = yield User.findOne username: @request.body.username
+    if doc
+        @throw 400
 
-    # `salt` is not needed because `hashed_password` contains it.
     user = new User
         username: @request.body.username
-        hashed_password: hashed_password
+        password: @request.body.password
 
-    # `username` is indexed as unique
-    # So if it is dupricated, `user.save()` will fail
-    try
-        yield user.save()
-    catch
-        @throw 400
-        return
-
+    yield user.save()
     @status = 201
     yield next
 
 
-# `GET /users` = List users
-router.get '/', (next)->
-    @body = yield User.find {}, '_id username'
+router.get '/', auth, (next)->
+    q = User.find {}
+    @body = yield q.select '_id username'
+    yield next
+
+
+router.delete '/:id', (next)->
+    if @user._id is @params.id
+        @status = 403
+        @body =
+            message: 'Do not delete youself'
+        return
+    q = User.findByIdAndRemove @params.id
+    yield q.exec()
+    @status = 204
     yield next
 
 

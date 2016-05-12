@@ -4,49 +4,40 @@ bcrypt = require 'bcrypt'
 jwt = require 'jsonwebtoken'
 mongoose = require 'mongoose'
 
-secret = require '../secret'
+config = require '../config'
 auth = require '../lib/auth'
 
 User = mongoose.model 'User'
 router = do require 'koa-router'
 
-# Make yieldable
 bcryptCompare = Q.nbind bcrypt.compare, bcrypt
 jwtVerify = Q.nbind jwt.verify, jwt
 
 
-# `POST /session` = Login
 router.post '/', (next)->
-    # Find user
-    q = User.findOne username: @request.body.username
+    q = User
+        .findOne username: @request.body.username
     doc = yield q.exec()
     if not doc
-        @throw 400
+        @throw 401
         return
 
-    # Compare `password` with `hashed_password`
-    ok = yield bcryptCompare @request.body.password, doc.hashed_password
+    ok = yield bcryptCompare @request.body.password, doc.password
     if not ok
-        @throw 400
+        @throw 401
         return
 
-    # Sign user id to json web token
-    token = jwt.sign (_id: doc.id), secret
-
-    # Serialize user object
-    user = _.pick doc, ['_id', 'username']
-
-    # Make response
+    token = jwt.sign (_id: doc._id), config.secret
     @body =
         token: token
-        user: user
+        user: _.pick doc, ['_id', 'username']
     @status = 201
     yield next
 
 
-# `GET /session` = Check if authorized
 router.get '/', auth, (next)->
-    @body = user: _.pick @user, ['_id', 'username']
+    @body =
+        user: @user
     yield next
 
 

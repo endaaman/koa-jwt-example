@@ -5,7 +5,7 @@ Router = require 'koa-router'
 config = require './config'
 
 mongoose.model 'User', require './model/user'
-mongoose.connect config.dbUrl
+mongoose.connect config.db
 
 api = new Router
 api.get '/', (next)->
